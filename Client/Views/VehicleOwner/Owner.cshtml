@@ -1,0 +1,113 @@
+﻿
+<br />
+<b>List of vehicle</b>
+
+@model DBModel.Model.Owner
+
+
+@(Html.Kendo().Grid<Client.Controllers.Vehicle2>()
+      .Name("grid1")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.RegistrationNumber);
+          columns.Bound(c => c.VIN);
+          columns.ForeignKey(p => p.VehicleTypeID, (System.Collections.IEnumerable)ViewData["VehicleTypes"], "TypeID", "TypeName").Title("Model");
+          columns.Bound(p => p.IsOwned).Title("IsOwned");
+          columns.Command(command => command.Custom("Toggle").Click("manageVehicle"));
+      })
+      .ToolBar(toolbar =>
+      {
+          toolbar.Excel();
+          toolbar.Pdf();
+      })
+      .Pageable()
+      .Selectable(selectable =>
+      {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable =>
+      {
+          sortable.SortMode(GridSortMode.SingleColumn);
+      })
+      .Filterable()
+      .Scrollable()
+      .DataSource(dataSource => dataSource
+          .Ajax()
+          .Model(model => model.Id(p => p.ID))
+          .Read(read => read.Action("Vehicles_Read", "Vehicles", new { ownerID = Model.ID }))
+      )
+)
+
+<script>
+    function manageVehicle(e)
+    {
+        e.preventDefault();
+        var dataItem = this.dataItem($(e.currentTarget).closest("tr"));
+
+        var args = { ownerID: @Model.ID, vehicleID: dataItem.ID };
+
+        if (dataItem.IsOwned) {
+            jQuery.post('RemoveVehicle', args, function (response) {
+                $('#grid1').data('kendoGrid').dataSource.read();
+                $('#grid2').data('kendoGrid').dataSource.read();
+            });
+        }
+        else {
+            jQuery.post('AddVehicle', args, function (response) {
+                $('#grid1').data('kendoGrid').dataSource.read();
+                $('#grid2').data('kendoGrid').dataSource.read();
+            });
+        }
+    }
+</script>
+
+
+<br />
+<b>List of vehicle by owner</b>
+
+@(Html.Kendo().Grid<Client.ViewModel.VehicleOwnerViewModel>()
+      .Name("grid2")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.FirstName).Title("Owner First Name");
+          columns.Bound(c => c.LastName).Title("Owner Last Name");
+          columns.Bound(c => c.VehicleModel).Title("Vehicle Model");
+          columns.Bound(c => c.VehicleNumber).Title("Vehicle Registration Number");
+          columns.Bound(c => c.VehicleVIN).Title("Vehicle VIN Number");
+          columns.Command(command => { command.Destroy(); });
+      })
+      .ToolBar(toolbar => {
+          toolbar.Excel();
+          toolbar.Pdf();
+      })
+      .ColumnMenu()
+      .Editable(editable => editable.Mode(GridEditMode.InLine))
+      .Pageable()
+      .Navigatable()
+      .Selectable(selectable => {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable => {
+          sortable.SortMode(GridSortMode.SingleColumn);
+      })
+      .Filterable()
+      .Scrollable()
+      .DataSource(dataSource => dataSource
+          .Ajax()
+          .Model(model => model.Id(p => p.ID))
+          .Read(read => read.Action("VehicleOwners_Read", "VehicleOwner").Data("ajaxdata"))
+          .Create(create => create.Action("VehicleOwners_CreateByOwner", "VehicleOwner").Data("ajaxdata"))
+          .Update(update => update.Action("VehicleOwners_Update", "VehicleOwner"))
+          .Destroy(destroy => destroy.Action("VehicleOwners_Destroy", "VehicleOwner"))
+      )
+)
+
+<script>
+    function ajaxdata()
+    {
+        return { ownerID: @Model.ID };
+    }
+</script>
+

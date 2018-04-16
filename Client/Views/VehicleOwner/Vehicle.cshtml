@@ -1,0 +1,51 @@
+﻿
+<br />
+<b>List of owners by vehicle</b>
+
+@model DBModel.Model.Vehicle
+
+@(Html.Kendo().Grid<Client.ViewModel.VehicleOwnerViewModel>()
+      .Name("grid")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.FirstName).Title("Owner First Name");
+          columns.Bound(c => c.LastName).Title("Owner Last Name");
+          columns.Bound(c => c.VehicleModel).Title("Vehicle Model");
+          columns.Bound(c => c.VehicleNumber).Title("Vehicle Registration Number");
+          columns.Bound(c => c.VehicleVIN).Title("Vehicle VIN Number");
+          columns.Command(command => { command.Destroy(); });
+      })
+      .ToolBar(toolbar => {
+          toolbar.Excel();
+          toolbar.Pdf();
+      })
+      .ColumnMenu()
+      .Editable(editable => editable.Mode(GridEditMode.InLine))
+      .Pageable()
+      .Navigatable()
+      .Selectable(selectable => {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable => {
+          sortable.SortMode(GridSortMode.SingleColumn);
+      })
+      .Filterable()
+      .Scrollable()
+      .DataSource(dataSource => dataSource
+          .Ajax()
+          .Model(model => model.Id(p => p.ID))
+          .Read(read => read.Action("VehicleOwners_Read", "VehicleOwner").Data("ajaxdata"))
+          .Create(create => create.Action("VehicleOwners_CreateByVehicle", "VehicleOwner").Data("ajaxdata"))
+          .Update(update => update.Action("VehicleOwners_Update", "VehicleOwner"))
+          .Destroy(destroy => destroy.Action("VehicleOwners_Destroy", "VehicleOwner"))
+      )
+)
+
+<script>
+    function ajaxdata()
+    {
+        return { vehicleID: @Model.ID };
+    }
+</script>
+

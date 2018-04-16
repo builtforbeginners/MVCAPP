@@ -1,0 +1,43 @@
+﻿<br/>
+<b>List of owners</b>
+
+@(Html.Kendo().Grid<DBModel.Model.Owner>()
+      .Name("grid")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.FirstName);
+          columns.Bound(c => c.LastName);
+          columns.Bound(c => c.Address);
+
+          columns.Bound(p => p.ID).Title("Details").ClientTemplate("<a class='k-button' href='" + Url.Action("Owner", "VehicleOwner", new { ownerID = "#=ID#" }) + "'>Vehicles</a>").EditorTemplateName("HiddenTemplate").Filterable(false);
+
+          columns.Command(command => { command.Edit(); command.Destroy(); });
+      })
+      .ToolBar(toolbar => {
+          toolbar.Create();
+          toolbar.Excel();
+          toolbar.Pdf();
+      })
+      .ColumnMenu()
+      .Editable(editable => editable.Mode(GridEditMode.InLine))
+      .Pageable()
+      .Navigatable()
+      .Selectable(selectable => {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable => {
+          sortable.SortMode(GridSortMode.SingleColumn);
+      })
+      .Filterable()
+      .Scrollable()
+      .DataSource(dataSource => dataSource
+          .Ajax()
+          .Model(model => model.Id(p => p.ID))
+          .Read(read => read.Action("Owners_Read", "Owners"))
+          .Create(create => create.Action("Owners_Create", "Owners"))
+          .Update(update => update.Action("Owners_Update", "Owners"))
+          .Destroy(destroy => destroy.Action("Owners_Destroy", "Owners"))
+      )
+)
+

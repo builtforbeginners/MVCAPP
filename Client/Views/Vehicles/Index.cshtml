@@ -1,0 +1,40 @@
+﻿<br />
+<b>List of vehicle</b>
+
+@(Html.Kendo().Grid<DBModel.Model.Vehicle>()
+      .Name("grid")
+      .Columns(columns =>
+      {
+          columns.Bound(c => c.RegistrationNumber);
+          columns.Bound(c => c.VIN);
+          columns.ForeignKey(p => p.VehicleTypeID, (System.Collections.IEnumerable)ViewData["VehicleTypes"], "TypeID", "TypeName").Title("Model");
+          columns.Bound(p => p.ID).Title("Details").ClientTemplate("<a class='k-button' href='" + Url.Action("Vehicle", "VehicleOwner", new { vehicleID = "#=ID#" }) + "'>Owners</a>").Filterable(false).EditorTemplateName("HiddenTemplate");
+
+          columns.Command(command => { command.Edit(); command.Destroy(); });
+      })
+      .ToolBar(toolbar => {
+          toolbar.Create();
+          toolbar.Excel();
+          toolbar.Pdf();
+      })
+      .Editable(editable => editable.Mode(GridEditMode.InLine))
+      .Pageable()
+      .Selectable(selectable => {
+          selectable.Mode(GridSelectionMode.Single);
+          selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable => {
+          sortable.SortMode(GridSortMode.SingleColumn);
+      })
+      .Filterable()
+      .Scrollable()
+      .DataSource(dataSource => dataSource
+          .Ajax()
+          .Model(model => model.Id(p => p.ID))
+          .Read(read => read.Action("Vehicles_Read", "Vehicles"))
+          .Create(create => create.Action("Vehicles_Create", "Vehicles"))
+          .Update(update => update.Action("Vehicles_Update", "Vehicles"))
+          .Destroy(destroy => destroy.Action("Vehicles_Destroy", "Vehicles"))
+      )
+
+)

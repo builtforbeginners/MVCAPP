@@ -1,0 +1,37 @@
+﻿
+<br />
+<b>Insert vehicle type</b>
+
+@(Html.Kendo().Grid<DBModel.Model.VehicleType>()
+      .Name("grid")
+      .Columns(columns =>
+      {
+        columns.Bound(c => c.Brand);
+        columns.Bound(c => c.Mark);
+        columns.Command(command => { command.Edit(); command.Destroy(); });
+      })
+      .ToolBar(toolbar => {
+            toolbar.Create();
+            toolbar.Excel();
+            toolbar.Pdf();
+      })
+      .ColumnMenu()
+      .Editable(editable => editable.Mode(GridEditMode.InLine))
+      .Selectable(selectable => {
+            selectable.Mode(GridSelectionMode.Single);
+            selectable.Type(GridSelectionType.Row);
+      })
+      .Sortable(sortable => {
+          sortable.SortMode(GridSortMode.SingleColumn);
+      })
+      .Filterable()
+      .Scrollable()
+      .DataSource(dataSource => dataSource
+          .Ajax()
+          .Model(model => model.Id(p => p.ID))
+          .Read(read => read.Action("VehicleType_Read", "VehicleTypes"))
+          .Create(create => create.Action("VehicleType_Create", "VehicleTypes"))
+          .Update(update => update.Action("VehicleType_Update", "VehicleTypes"))
+          .Destroy(destroy => destroy.Action("VehicleType_Destroy", "VehicleTypes"))
+      )
+)
